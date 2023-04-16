@@ -5,19 +5,19 @@
 #include <locale>
 #include <codecvt>
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
-        ("gameid", boost::program_options::value<int>(), "Set game id")
+        ("game", boost::program_options::value<std::string>(), "Set game id")
         ;
 
     boost::program_options::variables_map vm;
 
     try
     {
-		boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+		boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
 		boost::program_options::notify(vm);
 	}
     catch (boost::program_options::error& e)
@@ -32,10 +32,11 @@ int main(int argc, char *argv[])
 	}
 
     if (vm.count("game")) {
-        std::cout << "Game id was set to " << vm["gameid"].as<int>() << std::endl;
+
+        std::cout << "Game id was set to " << vm["game"].as<std::string>() << std::endl;
         std::cout << "Launching game..." << std::endl;
 
-        std::string command = "C:\\Users\\sansm\\bin\\legendary.exe launch " + vm["gameid"].as<int>();
+        std::string command = "C:\\Users\\sansm\\bin\\legendary.exe launch " + vm["game"].as<std::string>();
 
         std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
         std::wstring wstr = converter.from_bytes(command);
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
             
 		}
         else {
-			std::cout << "Game id was not set. Exiting..." << std::endl;
+			std::cout << "Game id was not set. ";
             system("pause");
 			return 1;   
         }
