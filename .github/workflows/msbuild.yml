@@ -33,7 +33,7 @@ jobs:
       uses: MarkusJx/install-boost@v2.4.1
       id: install-boost
       with:
-       boost_version: 1.81.1
+       boost_version: 1.81.0
        
     - uses: actions/checkout@v3
 
