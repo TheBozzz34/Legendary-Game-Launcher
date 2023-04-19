@@ -16,10 +16,11 @@ void GlutIdle(void)
 {
     /* According to the GLUT specification, the current window is
        undefined during an idle callback.  So we need to explicitly change
-       it if necessary 
+       it if necessary
+     */  
     if (glutGetWindow() != main_window)
     glutSetWindow(main_window);
-    */
+    
 
     glutPostRedisplay();
 }
