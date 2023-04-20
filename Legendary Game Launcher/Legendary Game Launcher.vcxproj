@@ -149,10 +149,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Downloads\imgui-1.89.5\imgui-1.89.5\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="frame_limiter.h" />
     <ClInclude Include="gl.h" />
     <ClInclude Include="imgui_demo.h" />
     <ClInclude Include="input_pause.h" />
     <ClInclude Include="launch.h" />
+    <ClInclude Include="list_games.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="vendor\imgui\imconfig.h" />
     <ClInclude Include="vendor\imgui\imgui.h" />
     <ClInclude Include="vendor\imgui\imgui_impl_glfw.h" />

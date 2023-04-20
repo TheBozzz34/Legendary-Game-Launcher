@@ -4,11 +4,10 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "input_pause.h"
 #include "imgui_stdlib.h"
 #include "launch.h"
-
-
+#include "list_games.h"
+#include "frame_limiter.h"
 
 
 #include <iostream>
@@ -61,8 +60,14 @@ void processInput(GLFWwindow* window)
 
 }
 
-int gl_window_loader(bool wireframe)
+bool wireframe;
+bool openglDemo;
+int fpsLimit = 60;
+
+int gl_window_loader()
 {
+    frame_rater<60> fr; // 60 FPS
+
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
     const char* glsl_version = "#version 100";
@@ -86,14 +91,13 @@ int gl_window_loader(bool wireframe)
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-    Pause pause;
     glfwInit();
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Dear ImGui GLFW+OpenGL3 Launcher", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -108,10 +112,6 @@ int gl_window_loader(bool wireframe)
         return -1;
     }
 
-    if (wireframe)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -207,10 +207,12 @@ int gl_window_loader(bool wireframe)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    bool show_demo_window = true;
+    bool show_demo_window = false;
     bool show_another_window = false;
     std::string input_text{ "" };
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -224,18 +226,26 @@ int gl_window_loader(bool wireframe)
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        if (wireframe)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
         
         
 
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+        
         {
             static float f = 0.0f;
             static int counter = 0;
 
-            ImGui::Begin("Hello, world!");                         
+            ImGui::Begin("Launch Game");                         
 
             ImGui::Text("This is some place holder text");              
             ImGui::Checkbox("Demo Window", &show_demo_window);     
@@ -252,16 +262,81 @@ int gl_window_loader(bool wireframe)
 
             ImGui::InputText("Enter Game ID", &input_text);
             
-            if (ImGui::Button("Launcg Game")) {
+            if (ImGui::Button("Launch Game")) {
 				std::cout << input_text << std::endl;
                 launch(input_text);
 			}
-               
+            if (ImGui::Button("List Games "))
+            {
+                list_games();
 
-
+            }
         
             ImGui::End();
         }
+
+        {
+            ImGui::Begin("Account Options");
+            ImGui::Text("Manage your account options");
+
+            if (ImGui::Button("Login To Epic Games"))
+            {
+                std::cout << "Feature in progress" << std::endl;
+            }
+            
+
+            ImGui::End();
+        }
+
+        {
+            ImGui::Begin("Games");
+            if (ImGui::Button("Launch Borderlands 2"))
+            {
+                launch("dodo");
+            }
+
+            if (ImGui::Button("Launch Alien: Isolation"))
+            {
+                launch("8935bb3e1420443a9789fe01758039a5");
+            }
+
+            ImGui::SetNextWindowSizeConstraints(ImVec2(315, 80), ImVec2(315, 80));
+
+            ImGui::End();
+            
+        }
+
+        {
+			ImGui::Begin("OpenGL Demo Render");
+			ImGui::Text("This is a simple vertex and fragment shader");
+            ImGui::Checkbox("Toggle OpenGL Demo ", &openglDemo);
+            ImGui::SameLine();
+            ImGui::Checkbox("Wireframe Mode", &wireframe);
+            ImGui::SetWindowPos(
+                ImVec2(0, 0),
+                true);
+            /*
+            std::string window_size = std::to_string(ImGui::GetWindowHeight());
+            std::cout << window_size << std::endl;
+            */
+
+        
+			ImGui::End();
+		}
+
+        {
+            ImGui::Begin("Settings");
+            ImGui::Text("Application settings can be configured here.");
+
+            ImGui::InputInt("Application FPS Limit", &fpsLimit);
+            ImGui::SameLine();
+            ImGui::Text("Currently Broken");
+
+
+			ImGui::End();
+
+        }
+
 
         ImGui::Render();
         int display_w, display_h;
@@ -271,15 +346,17 @@ int gl_window_loader(bool wireframe)
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        /*
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-        */
+        if (openglDemo)
+        {
+            glUseProgram(shaderProgram);
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+        }
 
         glfwSwapBuffers(window);
- 
+        fr.sleep();
+
        
     }
 

@@ -31,4 +31,8 @@ int launch(std::string id)
 	else {
 		std::cout << "Process exited with code " << exitCode << std::endl;
 	}
+	
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	return 0;
 }
