@@ -17,14 +17,16 @@ int launch(std::string id)
 	BOOL success = CreateProcessW(NULL, const_cast<wchar_t*>(wstr.c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
 	if (!success) {
 		std::cerr << "Failed to start process. Error code: " << GetLastError() << std::endl;
-		system("pause");
+		std::string blah2;
+		std::cin >> blah2;
 		return 1;
 	}
 	WaitForSingleObject(pi.hProcess, INFINITE);
 	DWORD exitCode = 0;
 	if (!GetExitCodeProcess(pi.hProcess, &exitCode)) {
 		std::cerr << "Failed to get process exit code. Error code: " << GetLastError() << std::endl;
-		system("pause");
+		std::string blah1;
+		std::cin >> blah1;
 	}
 	else {
 		std::cout << "Process exited with code " << exitCode << std::endl;
