@@ -6,11 +6,11 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_stdlib.h"
 #include "launch.h"
-#include "list_games.h"
-#include "frame_limiter.h"
-
-
+#include "exec.h"
 #include <iostream>
+
+#define BUFSIZE 4096 
+
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -62,11 +62,12 @@ void processInput(GLFWwindow* window)
 
 bool wireframe;
 bool openglDemo;
-int fpsLimit = 60;
+
+
 
 int gl_window_loader()
 {
-    frame_rater<60> fr; // 60 FPS
+
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
@@ -87,8 +88,7 @@ int gl_window_loader()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
     glfwInit();
@@ -234,8 +234,6 @@ int gl_window_loader()
         else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
-        
-        
 
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
@@ -266,9 +264,10 @@ int gl_window_loader()
 				std::cout << input_text << std::endl;
                 launch(input_text);
 			}
-            if (ImGui::Button("List Games "))
+            if (ImGui::Button("List Installed Games "))
             {
-                list_games();
+                exec((char*)"legendary list-installed");
+                
 
             }
         
@@ -281,7 +280,7 @@ int gl_window_loader()
 
             if (ImGui::Button("Login To Epic Games"))
             {
-                std::cout << "Feature in progress" << std::endl;
+                exec((char*)"legendary auth");
             }
             
 
@@ -292,12 +291,12 @@ int gl_window_loader()
             ImGui::Begin("Games");
             if (ImGui::Button("Launch Borderlands 2"))
             {
-                launch("dodo");
+                exec((char*)"legendary launch dodo");
             }
 
             if (ImGui::Button("Launch Alien: Isolation"))
             {
-                launch("8935bb3e1420443a9789fe01758039a5");
+                exec((char*)"legendary launch 8935bb3e1420443a9789fe01758039a5");
             }
 
             ImGui::SetNextWindowSizeConstraints(ImVec2(315, 80), ImVec2(315, 80));
@@ -327,10 +326,11 @@ int gl_window_loader()
         {
             ImGui::Begin("Settings");
             ImGui::Text("Application settings can be configured here.");
-
+            /*
             ImGui::InputInt("Application FPS Limit", &fpsLimit);
             ImGui::SameLine();
             ImGui::Text("Currently Broken");
+            */
 
 
 			ImGui::End();
@@ -355,7 +355,6 @@ int gl_window_loader()
         }
 
         glfwSwapBuffers(window);
-        fr.sleep();
 
        
     }
@@ -371,3 +370,5 @@ int gl_window_loader()
     // pause();
     return 0;
 }
+
+

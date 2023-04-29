@@ -12,13 +12,13 @@ HANDLE g_hChildStd_OUT_Wr = NULL;
 
 HANDLE g_hInputFile = NULL;
 
-void CreateChildProcess(void);
+void CreateChildProcess(char*);
 void WriteToPipe(void);
 void ReadFromPipe(void);
 void ErrorExit(PTSTR);
 
 
-int list_games()
+int exec(char* command)
 {
     SECURITY_ATTRIBUTES saAttr;
 
@@ -52,7 +52,7 @@ int list_games()
 
     // Create the child process. 
 
-    CreateChildProcess();
+    CreateChildProcess(command);
     // Read from pipe that is the standard output for child process. 
 
     printf("\n->Contents of child process STDOUT:\n\n");
@@ -67,7 +67,7 @@ int list_games()
     return 0;
 }
 
-void CreateChildProcess()
+void CreateChildProcess(char* command)
 // Create a child process that uses the previously created pipes for STDIN and STDOUT.
 {
     TCHAR szCmdline[] = TEXT("child");
@@ -92,7 +92,7 @@ void CreateChildProcess()
     // Create the child process. 
 
     bSuccess = CreateProcess(NULL,
-        (LPSTR)"legendary list-installed",     // command line 
+        (LPSTR)command,     // command line 
         NULL,          // process security attributes 
         NULL,          // primary thread security attributes 
         TRUE,          // handles are inherited 

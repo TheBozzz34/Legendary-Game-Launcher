@@ -11,13 +11,12 @@
 
 int main(int argc, char* argv[])
 {
-    Pause pause;
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
         ("game", boost::program_options::value<std::string>(), "Set game id")
         ("sentry", "Enables sentry.io integration")
-        ("gui", "Launches the WIP GUI with OpenGL")
+        ("nogui", "Disables the WIP GUI with OpenGL")
         ;
 
     boost::program_options::variables_map vm;
@@ -33,8 +32,17 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-    if (vm.count("gui")) {
-        gl_window_loader();
+    if (vm.count("nogui")) {
+        std::cout << "Game id was not set. Do you want to set it now? [Y/n]" << std::endl;
+        std::string input;
+        std::cin >> input;
+        if (input == "yes" || input == "y") {
+            std::cout << "Enter game id: ";
+            std::cin >> input;
+            std::cout << "Game id was set to " << input << std::endl;
+            std::cout << "Launching game..." << std::endl;
+            launch(input);
+        } 
         return 0;
 	}
 
@@ -47,25 +55,11 @@ int main(int argc, char* argv[])
         launch(vm["game"].as<std::string>());
     }
     else {
-		std::cout << "Game id was not set. Do you want to set it now? [Y/n]" << std::endl;
-        std::string input;
-        std::cin >> input;
-        if (input == "yes" || input == "y") {
-            std::cout << "Enter game id: ";
-            std::cin >> input;
-            std::cout << "Game id was set to " << input << std::endl;
-            std::cout << "Launching game..." << std::endl;
-            launch(input);
-            
-		}
-        else {
-			std::cout << "Game id was not set. ";
-            pause();
-			return 1;   
-        }
+        ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
+        gl_window_loader();
+        return 0;
 	}
 
-    pause();
-    glfwTerminate();
+    // pause();
     return 0;
 }
